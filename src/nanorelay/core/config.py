@@ -11,7 +11,8 @@ class Settings(BaseSettings):
     )
 
     port: int = 8080
-    backend_url: Optional[str] = None
+    # backend_url: Optional[str] = None
+    backend_config_path: str = "config.yaml"
 
 
 settings = Settings()

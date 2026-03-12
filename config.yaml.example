@@ -1,0 +1,12 @@
+# The default backend to use (e.g., local, modal)
+default: local
+
+backends:
+  - type: local
+    url: http://localhost:8081
+    timeout: 60
+  
+  - type: modal
+    # Replace with your specific Modal deployment URL
+    url: YOUR_MODAL_URL_HERE
+    timeout: 120
