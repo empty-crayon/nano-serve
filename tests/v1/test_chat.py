@@ -1,23 +1,21 @@
 import pytest
 from fastapi.testclient import TestClient
 from main import app
-from nanorelay.schemas.chat import ChatMessage
-from nanorelay.core.dependencies import get_dispatcher
+from nanoserve.core.dependencies import get_dispatcher
+from nanoserve.schemas.request_context import RequestContext
 
-
-TEST_MODEL = "tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
-
+TEST_MODEL = "echo"
 
 class MockDispatcher:
-    async def dispatch(self, messages: list[ChatMessage], model: str) -> dict:
+    async def dispatch(self, ctx: RequestContext) -> dict:
         return {
-            "id": "backend-generated-id",
+            "id": ctx.request_id,
             "object": "chat.completion",
             "created": 1000000000,
-            "model": model,
+            "model": ctx.model,
             "choices": [{
                 "index": 0,
-                "message": {"role": "assistant", "content": f"Echo: {messages[-1].content}"},
+                "message": {"role": "assistant", "content": f"Echo: {ctx.messages[-1].content}"},
                 "finish_reason": "stop"
             }]
         }
@@ -26,13 +24,15 @@ class MockDispatcher:
 @pytest.fixture
 def mock_client():
     app.dependency_overrides[get_dispatcher] = lambda: MockDispatcher()
-    yield TestClient(app)
+    # Using 'with TestClient' ensures lifespan is triggered (needed for startup validation)
+    # but since we override getter, we strictly don't even need lifespan for dispatcher,
+    # except that FASTAPI 0.100+ can complain if state isn't initialized when someone checks app.state
+    with TestClient(app) as c:
+        yield c
     app.dependency_overrides.clear()
 
 
 def test_chat_completions_echo(reset_backend, mock_client):
-    """Returns echo response when backend_url is not set."""
-
     response = mock_client.post("/v1/chat/completions", json={
         "model": TEST_MODEL,
         "messages": [{"role": "user", "content": "hello"}]
@@ -46,7 +46,6 @@ def test_chat_completions_echo(reset_backend, mock_client):
 
 
 def test_chat_completions_request_id_header(mock_client):
-    """Response id reflects X-Request-ID header when provided."""
     response = mock_client.post(
         "/v1/chat/completions",
         json={"model": TEST_MODEL, "messages": [{"role": "user", "content": "hi"}]},
@@ -57,7 +56,6 @@ def test_chat_completions_request_id_header(mock_client):
 
 
 def test_chat_completions_auto_request_id(mock_client):
-    """Generates request id automatically when X-Request-ID is missing."""
     response = mock_client.post("/v1/chat/completions", json={
         "model": TEST_MODEL,
         "messages": [{"role": "user", "content": "hi"}]
@@ -65,10 +63,10 @@ def test_chat_completions_auto_request_id(mock_client):
     assert response.status_code == 200
     assert response.json()["id"].startswith("chatcmpl-")
 
+
 # ---- Error cases ----
 
 def test_chat_completions_last_message_not_user(mock_client):
-    """Returns 400 when last message does not have user role."""
     response = mock_client.post("/v1/chat/completions", json={
         "model": TEST_MODEL,
         "messages": [{"role": "assistant", "content": "hello"}]
@@ -78,7 +76,6 @@ def test_chat_completions_last_message_not_user(mock_client):
 
 
 def test_chat_completions_invalid_role(mock_client):
-    """Returns 422 for undefined role (Pydantic validation)."""
     response = mock_client.post("/v1/chat/completions", json={
         "model": TEST_MODEL,
         "messages": [{"role": "unknown", "content": "hello"}]
