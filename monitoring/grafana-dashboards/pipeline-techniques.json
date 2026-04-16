@@ -1,0 +1,308 @@
+{
+  "uid": "ns-pipeline-techniques",
+  "title": "4 \u00b7 Pipeline Techniques",
+  "tags": [
+    "nano-serve",
+    "techniques"
+  ],
+  "timezone": "utc",
+  "editable": true,
+  "refresh": "15s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "percentile",
+        "label": "Percentile",
+        "type": "custom",
+        "current": {
+          "text": "p95",
+          "value": "0.95"
+        },
+        "options": [
+          {
+            "text": "p50",
+            "value": "0.50",
+            "selected": false
+          },
+          {
+            "text": "p95",
+            "value": "0.95",
+            "selected": true
+          },
+          {
+            "text": "p99",
+            "value": "0.99",
+            "selected": false
+          }
+        ],
+        "query": "p50 : 0.50, p95 : 0.95, p99 : 0.99"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### Technique comparison: `classify` \u00b7 `generate` \u00b7 `gate`\nUse the **Percentile** dropdown above to switch between p50 / p95 / p99. All charts show one line per technique."
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Request rate by technique",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 2
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "fillOpacity": 15
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (technique) (rate(nanoserve_requests_total{technique!=\"unknown\"}[5m]))",
+          "legendFormat": "{{technique}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Time to first token \u2014 by technique",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 2
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile($percentile, sum by (le, technique) (rate(nanoserve_time_to_first_token_seconds_bucket{technique!=\"unknown\"}[5m])))",
+          "legendFormat": "{{technique}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "E2E latency \u2014 by technique",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 2
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile($percentile, sum by (le, technique) (rate(nanoserve_request_duration_seconds_bucket{technique!=\"unknown\"}[5m])))",
+          "legendFormat": "{{technique}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Time per output token \u2014 by technique",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 10
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile($percentile, sum by (le, technique) (rate(nanoserve_time_per_output_token_seconds_bucket{technique!=\"unknown\"}[5m])))",
+          "legendFormat": "{{technique}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Streaming inter-chunk delay \u2014 by technique",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 10
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile($percentile, sum by (le, technique) (rate(nanoserve_stream_inter_chunk_delay_seconds_bucket{technique!=\"unknown\"}[5m])))",
+          "legendFormat": "{{technique}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Completion tokens/s \u2014 by technique",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 10
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "tok/s"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile($percentile, sum by (le, technique) (rate(nanoserve_completion_tokens_per_second_bucket{technique!=\"unknown\"}[5m])))",
+          "legendFormat": "{{technique}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Token rates \u2014 by technique",
+      "description": "Prompt and completion token rates from gateway counters (requires stream_options enabled).",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "tok/s"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (technique) (rate(nanoserve_completion_tokens_total{technique!=\"unknown\"}[5m]))",
+          "legendFormat": "completion \u2014 {{technique}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (technique) (rate(nanoserve_prompt_tokens_total{technique!=\"unknown\"}[5m]))",
+          "legendFormat": "prompt \u2014 {{technique}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Request duration distribution \u2014 by technique",
+      "description": "Heatmap-style: average request duration per technique over time",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (technique) (rate(nanoserve_request_duration_seconds_sum{technique!=\"unknown\"}[5m])) / clamp_min(sum by (technique) (rate(nanoserve_request_duration_seconds_count{technique!=\"unknown\"}[5m])), 1e-10)",
+          "legendFormat": "avg \u2014 {{technique}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      }
+    }
+  ],
+  "schemaVersion": 39
+}

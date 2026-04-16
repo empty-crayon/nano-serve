@@ -1,0 +1,12 @@
+apiVersion: 1
+providers:
+  - name: NanoServe
+    orgId: 1
+    folder: NanoServe
+    type: file
+    disableDeletion: false
+    editable: true
+    # Reload JSON from disk periodically (dashboard Refresh only re-queries Prometheus).
+    updateIntervalSeconds: 5
+    options:
+      path: /var/lib/grafana/dashboards
