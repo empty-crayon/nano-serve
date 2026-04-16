@@ -1,0 +1,6 @@
+# nano-serve backend config
+# Copy to config.yaml and set backend_url to your vLLM instance.
+
+backend_url: "http://localhost:8000"   # vLLM endpoint
+timeout: 120                           # upstream request timeout in seconds
+echo_timeout: 10                       # timeout for the in-process echo backend
