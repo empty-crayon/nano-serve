@@ -217,91 +217,6 @@ All arms at concurrency 32, run until mixed-workload.jsonl is exhausted.
 Note: Zero errors across all arms.
 
 
-```python
-import json
-from pathlib import Path
-import pandas as pd
-
-RESULTS_DIR = Path("results")
-ARM_ORDER = ["Baseline", "Prefix_Caching", "TP_Speculative_1", "TP_Speculative_3"]
-ARM_LABELS = {
-    "Baseline": "Baseline",
-    "Prefix_Caching": "Prefix Caching",
-    "TP_Speculative_1": "MTP-1 + Prefix Cache",
-    "TP_Speculative_3": "MTP-3 + Prefix Cache",
-}
-
-
-def load_summary(arm: str) -> dict:
-    run_dir = sorted((RESULTS_DIR / arm).glob("conc_32_*"))[-1]
-    with open(run_dir / "summary.json") as f:
-        return json.load(f)[0]
-
-
-rows = [load_summary(arm) for arm in ARM_ORDER]
-df = pd.DataFrame(rows)
-
-# Derive throughput in requests per minute
-if "throughput_rps" in df.columns:
-    df["throughput_rpm"] = df["throughput_rps"].fillna(0) * 60
-else:
-    df["throughput_rpm"] = pd.NA
-
-cols = {
-    "experiment": "Arm",
-    "n_requests": "Requests",
-    "n_errors": "Errors",
-    "throughput_rpm": "Throughput (RPM)",
-    "ttft_p50_s": "TTFT p50 (s)",
-    "ttft_p95_s": "TTFT p95 (s)",
-    "total_latency_p50_s": "Lat p50 (s)",
-    "total_latency_p95_s": "Lat p95 (s)",
-    "tps_p50": "TPS p50",
-    "tps_p95": "TPS p95",
-    "mean_gpu_util_pct": "GPU Util %",
-    "peak_vram_mb": "Peak VRAM (MB)",
-    "cost_per_request_usd": "Cost/Req ($)",
-}
-display_df = df[list(cols.keys())].rename(columns=cols)
-display_df["Arm"] = display_df["Arm"].map(ARM_LABELS).fillna(display_df["Arm"])
-display_df.set_index("Arm", inplace=True)
-
-# Dark-mode-friendly styling: underline best/worst instead of background colors
-def _underline_min(s):
-    is_min = s == s.min()
-    return ["text-decoration: underline; text-decoration-color: #55cc88; text-underline-offset: 3px; font-weight: bold" if v else "" for v in is_min]
-
-def _underline_max(s):
-    is_max = s == s.max()
-    return ["text-decoration: underline; text-decoration-color: #55cc88; text-underline-offset: 3px; font-weight: bold" if v else "" for v in is_max]
-
-def _underline_max_warn(s):
-    is_max = s == s.max()
-    return ["text-decoration: underline; text-decoration-color: #ff6b6b; text-underline-offset: 3px; font-weight: bold" if v else "" for v in is_max]
-
-display_df.style \
-    .set_caption("Configuration Ablation — Concurrency 32, Mixed Workload") \
-    .format({
-        "Throughput (RPM)": "{:.1f}",
-        "TTFT p50 (s)": "{:.3f}",
-        "TTFT p95 (s)": "{:.3f}",
-        "Lat p50 (s)": "{:.3f}",
-        "Lat p95 (s)": "{:.3f}",
-        "TPS p50": "{:.2f}",
-        "TPS p95": "{:.2f}",
-        "GPU Util %": "{:.1f}",
-        "Peak VRAM (MB)": "{:,.0f}",
-        "Cost/Req ($)": "{:.6f}",
-    }) \
-    .apply(_underline_min, subset=["TTFT p50 (s)", "TTFT p95 (s)", "Lat p50 (s)", "Lat p95 (s)", "Cost/Req ($)"]) \
-    .apply(_underline_max, subset=["TPS p50", "TPS p95", "Throughput (RPM)"]) \
-    .apply(_underline_max_warn, subset=["Peak VRAM (MB)"])
-```
-
-
-
-
-
 <table id="T_1b438">
   <caption>Configuration Ablation — Concurrency 32, Mixed Workload</caption>
   <thead>
@@ -356,16 +271,16 @@ display_df.style \
       <th id="T_1b438_level0_row1" class="row_heading level0 row1" >Prefix Caching</th>
       <td id="T_1b438_row1_col0" class="data row1 col0" >150</td>
       <td id="T_1b438_row1_col1" class="data row1 col1" >0</td>
-      <td id="T_1b438_row1_col2" class="data row1 col2" ><strong>70.3</strong></td>
-      <td id="T_1b438_row1_col3" class="data row1 col3" ><strong>0.973</strong></td>
-      <td id="T_1b438_row1_col4" class="data row1 col4" ><strong>4.873</strong></td>
-      <td id="T_1b438_row1_col5" class="data row1 col5" ><strong>7.576</strong></td>
+      <td id="T_1b438_row1_col2" class="data row1 col2" >70.3</td>
+      <td id="T_1b438_row1_col3" class="data row1 col3" >0.973</td>
+      <td id="T_1b438_row1_col4" class="data row1 col4" >4.873</td>
+      <td id="T_1b438_row1_col5" class="data row1 col5" >7.576</td>
       <td id="T_1b438_row1_col6" class="data row1 col6" >100.944</td>
-      <td id="T_1b438_row1_col7" class="data row1 col7" ><strong>12.77</strong></td>
-      <td id="T_1b438_row1_col8" class="data row1 col8" ><strong>17.70</strong></td>
+      <td id="T_1b438_row1_col7" class="data row1 col7" >12.77</td>
+      <td id="T_1b438_row1_col8" class="data row1 col8" >17.70</td>
       <td id="T_1b438_row1_col9" class="data row1 col9" >97.9</td>
       <td id="T_1b438_row1_col10" class="data row1 col10" >20,849</td>
-      <td id="T_1b438_row1_col11" class="data row1 col11" ><strong>0.000261</strong></td>
+      <td id="T_1b438_row1_col11" class="data row1 col11" >0.000261</td>
     </tr>
     <tr>
       <th id="T_1b438_level0_row2" class="row_heading level0 row2" >MTP-1 + Prefix Cache</th>
@@ -390,12 +305,12 @@ display_df.style \
       <td id="T_1b438_row3_col3" class="data row3 col3" >2.781</td>
       <td id="T_1b438_row3_col4" class="data row3 col4" >9.082</td>
       <td id="T_1b438_row3_col5" class="data row3 col5" >10.793</td>
-      <td id="T_1b438_row3_col6" class="data row3 col6" ><strong>82.295</strong></td>
+      <td id="T_1b438_row3_col6" class="data row3 col6" >82.295</td>
       <td id="T_1b438_row3_col7" class="data row3 col7" >3.25</td>
       <td id="T_1b438_row3_col8" class="data row3 col8" >5.13</td>
       <td id="T_1b438_row3_col9" class="data row3 col9" >93.4</td>
-      <td id="T_1b438_row3_col10" class="data row3 col10" >22,467 ⚠️</td>
-      <td id="T_1b438_row3_col11" class="data row3 col11" ><strong>0.000249</strong></td>
+      <td id="T_1b438_row3_col10" class="data row3 col10" >22,467</td>
+      <td id="T_1b438_row3_col11" class="data row3 col11" >0.000249</td>
     </tr>
   </tbody>
 </table>
@@ -403,140 +318,14 @@ display_df.style \
 
 
 
-
-```python
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.patches import Patch
-
-plt.rcParams.update({"figure.dpi": 150, "savefig.dpi": 150})
-
-arms = ARM_ORDER
-labels = [ARM_LABELS[a] for a in arms]
-x = np.arange(len(arms))
-data = {arm: load_summary(arm) for arm in arms}
-
-COLORS = ["#4C72B0", "#55A868", "#C44E52", "#8172B2"]
-
-metrics = [
-    ("TTFT", "ttft_{}_s", "seconds"),
-    ("End-to-End Latency", "total_latency_{}_s", "seconds"),
-    ("Tokens per Second", "tps_{}", "tokens/s"),
-]
-
-fig, axes = plt.subplots(2, 3, figsize=(18, 9))
-fig.suptitle("Configuration Ablation — Concurrency 32", fontsize=14, fontweight="bold", y=1.02)
-
-# Color legend at top — arm identity
-legend_handles = [Patch(facecolor=c, label=l) for c, l in zip(COLORS, labels)]
-fig.legend(
-    handles=legend_handles,
-    loc="upper center",
-    ncol=len(labels),
-    fontsize=10,
-    frameon=False,
-    bbox_to_anchor=(0.5, 0.99),
-)
-
-for row_idx, percentile in enumerate(["p50", "p95"]):
-    for col_idx, (title, key_tmpl, unit) in enumerate(metrics):
-        ax = axes[row_idx, col_idx]
-        key = key_tmpl.format(percentile)
-        vals = [data[a][key] for a in arms]
-        bars = ax.bar(x, vals, color=COLORS, alpha=0.88, width=0.55, edgecolor="white", linewidth=0.5)
-        ax.set_title(f"{title} — {percentile.upper()}", fontsize=11, fontweight="bold")
-        ax.set_ylabel(unit, fontsize=10)
-        # Single centered tick labeled "mixed" — conveys the workload like analysis.ipynb
-        ax.set_xticks([np.mean(x)])
-        ax.set_xticklabels(["mixed"], fontsize=9, color="gray")
-        ax.set_xlabel("workload", fontsize=8, color="gray")
-        ax.grid(axis="y", alpha=0.3, linewidth=0.5)
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-        for bar, v in zip(bars, vals):
-            ax.text(
-                bar.get_x() + bar.get_width() / 2, bar.get_height(),
-                f"{v:.2f}" if v < 100 else f"{v:.1f}",
-                ha="center", va="bottom", fontsize=8, fontweight="bold",
-            )
-
-plt.tight_layout()
-plt.show()
-```
-
-
+### Visualisation for key metrics across arms: TTFT, latency, TPS at p50 and p95.
     
 ![Ablation metrics comparison — TTFT, latency, TPS at p50/p95 across all four arms](assets/ablation-metrics-grid.png)
     
 
-
-
-```python
-A10_VRAM_GB = 24.0
-import pandas as pd
-
-peak_vram = [data[a]["peak_vram_mb"] / 1024 for a in arms]
-mean_vram = [data[a]["mean_vram_mb"] / 1024 for a in arms]
-w = 0.35
-
-# ── Chart 1: VRAM pressure — arm names on x-axis ──
-fig1, ax1 = plt.subplots(figsize=(12, 5))
-
-bars_mean = ax1.bar(x - w / 2, mean_vram, w, label="Mean VRAM", color="#4C72B0", alpha=0.88, edgecolor="white", linewidth=0.5)
-bars_peak = ax1.bar(x + w / 2, peak_vram, w, label="Peak VRAM", color="#C44E52", alpha=0.88, edgecolor="white", linewidth=0.5)
-ax1.axhline(A10_VRAM_GB, color="gray", linestyle="--", linewidth=1.2, label=f"A10 capacity ({A10_VRAM_GB:.0f} GB)")
-ax1.set_ylim(0, A10_VRAM_GB * 1.12)
-ax1.set_title("GPU Memory Pressure (Concurrency 32)", fontsize=12, fontweight="bold")
-ax1.set_ylabel("VRAM (GB)", fontsize=10)
-ax1.set_xticks(x)
-ax1.set_xticklabels(labels, rotation=12, ha="right", fontsize=9)
-ax1.legend(loc="lower right", fontsize=9)
-ax1.grid(axis="y", alpha=0.3, linewidth=0.5)
-ax1.spines["top"].set_visible(False)
-ax1.spines["right"].set_visible(False)
-
-for bar, v in zip(bars_peak, peak_vram):
-    pct = v / A10_VRAM_GB * 100
-    label_color = "#C44E52" if pct > 90 else "#4C72B0"
-    ax1.text(
-        bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.15,
-        f"{v:.1f} GB\n({pct:.0f}%)",
-        ha="center", va="bottom", fontsize=9, color=label_color, fontweight="bold",
-    )
-
-plt.tight_layout()
-plt.show()
-
-# ── Chart 2: GPU utilization over time — full width ──
-fig2, ax2 = plt.subplots(figsize=(14, 5))
-
-for arm, color in zip(arms, COLORS):
-    run_dir = sorted((RESULTS_DIR / arm).glob("conc_32_*"))[-1]
-    gpu_df = pd.read_csv(run_dir / "gpu_metrics.csv")
-    gpu_df["timestamp_utc"] = pd.to_datetime(gpu_df["timestamp_utc"])
-    elapsed = (gpu_df["timestamp_utc"] - gpu_df["timestamp_utc"].iloc[0]).dt.total_seconds()
-    ax2.plot(elapsed, gpu_df["gpu_util_pct"], label=ARM_LABELS[arm], color=color, linewidth=1.6, alpha=0.88)
-
-ax2.set_title("GPU Utilization Over Time (Concurrency 32)", fontsize=12, fontweight="bold")
-ax2.set_xlabel("Time (s)", fontsize=10)
-ax2.set_ylabel("GPU Utilization %", fontsize=10)
-ax2.set_ylim(0, 105)
-ax2.legend(fontsize=10, loc="lower right")
-ax2.grid(alpha=0.3, linewidth=0.5)
-ax2.spines["top"].set_visible(False)
-ax2.spines["right"].set_visible(False)
-
-plt.tight_layout()
-plt.show()
-```
-
-
+### Visualisation for GPU memory pressure and utilisation over time at concurrency 32:
     
 ![GPU memory pressure by arm at concurrency 32](assets/ablation-vram-pressure.png)
-    
-
-
-
     
 ![GPU utilization over time at concurrency 32](assets/ablation-gpu-utilization.png)
     
@@ -635,6 +424,8 @@ sweep_display.style \
 
 
 
+<style type="text/css">
+</style>
 <table id="T_99072">
   <caption>Concurrency Sweep — Prefix Caching, Mixed Workload</caption>
   <thead>
