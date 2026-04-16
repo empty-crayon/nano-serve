@@ -1,12 +1,6 @@
-# The default backend to use (e.g., local, modal)
-default: local
+# nano-serve backend config
+# Copy to config.yaml and set backend_url to your vLLM instance.
 
-backends:
-  - type: local
-    url: http://localhost:8081
-    timeout: 60
-  
-  - type: modal
-    # Replace with your specific Modal deployment URL
-    url: YOUR_MODAL_URL_HERE
-    timeout: 120
+backend_url: "http://localhost:8000"   # vLLM endpoint
+timeout: 120                           # upstream request timeout in seconds
+echo_timeout: 10                       # timeout for the in-process echo backend

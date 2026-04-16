@@ -207,3 +207,21 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Excalidraw files
+*.excalidraw
+
+# Benchmark results and generated data (large, not part of library)
+results/
+data/
+workloads/
+
+# Notebook artifacts
+deep-dive.html
+deep-dive_files/
+"deep-dive copy.ipynb"
+
+# Misc
+genaiperf/
+DEEP_DIVE_Archived.md
+README_OLD.md
