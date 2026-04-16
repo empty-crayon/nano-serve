@@ -301,20 +301,7 @@ display_df.style \
 
 
 
-<style type="text/css">
-#T_1b438_row1_col2, #T_1b438_row1_col3, #T_1b438_row1_col4, #T_1b438_row1_col5, #T_1b438_row1_col7, #T_1b438_row1_col8, #T_1b438_row3_col6, #T_1b438_row3_col11 {
-  text-decoration: underline;
-  text-decoration-color: #55cc88;
-  text-underline-offset: 3px;
-  font-weight: bold;
-}
-#T_1b438_row3_col10 {
-  text-decoration: underline;
-  text-decoration-color: #ff6b6b;
-  text-underline-offset: 3px;
-  font-weight: bold;
-}
-</style>
+
 <table id="T_1b438">
   <caption>Configuration Ablation — Concurrency 32, Mixed Workload</caption>
   <thead>
@@ -369,16 +356,16 @@ display_df.style \
       <th id="T_1b438_level0_row1" class="row_heading level0 row1" >Prefix Caching</th>
       <td id="T_1b438_row1_col0" class="data row1 col0" >150</td>
       <td id="T_1b438_row1_col1" class="data row1 col1" >0</td>
-      <td id="T_1b438_row1_col2" class="data row1 col2" >70.3</td>
-      <td id="T_1b438_row1_col3" class="data row1 col3" >0.973</td>
-      <td id="T_1b438_row1_col4" class="data row1 col4" >4.873</td>
-      <td id="T_1b438_row1_col5" class="data row1 col5" >7.576</td>
+      <td id="T_1b438_row1_col2" class="data row1 col2" ><strong>70.3</strong></td>
+      <td id="T_1b438_row1_col3" class="data row1 col3" ><strong>0.973</strong></td>
+      <td id="T_1b438_row1_col4" class="data row1 col4" ><strong>4.873</strong></td>
+      <td id="T_1b438_row1_col5" class="data row1 col5" ><strong>7.576</strong></td>
       <td id="T_1b438_row1_col6" class="data row1 col6" >100.944</td>
-      <td id="T_1b438_row1_col7" class="data row1 col7" >12.77</td>
-      <td id="T_1b438_row1_col8" class="data row1 col8" >17.70</td>
+      <td id="T_1b438_row1_col7" class="data row1 col7" ><strong>12.77</strong></td>
+      <td id="T_1b438_row1_col8" class="data row1 col8" ><strong>17.70</strong></td>
       <td id="T_1b438_row1_col9" class="data row1 col9" >97.9</td>
       <td id="T_1b438_row1_col10" class="data row1 col10" >20,849</td>
-      <td id="T_1b438_row1_col11" class="data row1 col11" >0.000261</td>
+      <td id="T_1b438_row1_col11" class="data row1 col11" ><strong>0.000261</strong></td>
     </tr>
     <tr>
       <th id="T_1b438_level0_row2" class="row_heading level0 row2" >MTP-1 + Prefix Cache</th>
@@ -403,12 +390,12 @@ display_df.style \
       <td id="T_1b438_row3_col3" class="data row3 col3" >2.781</td>
       <td id="T_1b438_row3_col4" class="data row3 col4" >9.082</td>
       <td id="T_1b438_row3_col5" class="data row3 col5" >10.793</td>
-      <td id="T_1b438_row3_col6" class="data row3 col6" >82.295</td>
+      <td id="T_1b438_row3_col6" class="data row3 col6" ><strong>82.295</strong></td>
       <td id="T_1b438_row3_col7" class="data row3 col7" >3.25</td>
       <td id="T_1b438_row3_col8" class="data row3 col8" >5.13</td>
       <td id="T_1b438_row3_col9" class="data row3 col9" >93.4</td>
-      <td id="T_1b438_row3_col10" class="data row3 col10" >22,467</td>
-      <td id="T_1b438_row3_col11" class="data row3 col11" >0.000249</td>
+      <td id="T_1b438_row3_col10" class="data row3 col10" >22,467 ⚠️</td>
+      <td id="T_1b438_row3_col11" class="data row3 col11" ><strong>0.000249</strong></td>
     </tr>
   </tbody>
 </table>
@@ -648,8 +635,6 @@ sweep_display.style \
 
 
 
-<style type="text/css">
-</style>
 <table id="T_99072">
   <caption>Concurrency Sweep — Prefix Caching, Mixed Workload</caption>
   <thead>
